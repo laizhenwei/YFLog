@@ -11,15 +11,10 @@
 NSString * const YFLoggerDefaultDomain = @"YFLogger";
 
 static YFLoggerLevel levelMask;
-static NSMutableSet *domains;
 
 @implementation YFLogger
 
 + (void)load {
-    domains = [NSMutableSet setWithArray:@[
-                                           YFLoggerDefaultDomain
-                                           ]];
-    
 #if DEBUG
     [self setAllLogsEnable:YES];
 #else
@@ -36,15 +31,15 @@ static NSMutableSet *domains;
 }
 
 + (void)addLoggerDomain:(NSString *)domain {
-    [domains addObject:domain];
+    [self.domains addObject:domain];
 }
 
 + (void)removeLoggerDomain:(NSString *)domain {
-    [domains removeObject:domain];
+    [self.domains removeObject:domain];
 }
 
 + (void)logFunc:(const char *)func line:(const int)line level:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)format, ... {
-    if (domain.length <= 0 || ![domains containsObject:domain]) return;
+    if (domain.length <= 0 || ![self.domains containsObject:domain]) return;
     if (level & levelMask) {
         NSString *prefix = @"💜";
         switch (level) {
@@ -66,6 +61,14 @@ static NSMutableSet *domains;
         va_end(args);
         NSLog(@"%@ %d %s %@", prefix, line, func, message);
     }
+}
+
++ (NSMutableSet *)domains {
+    static NSMutableSet *domains;
+    if (!domains) {
+        domains = [NSMutableSet setWithObject:YFLoggerDefaultDomain];
+    }
+    return domains;
 }
 
 @end
