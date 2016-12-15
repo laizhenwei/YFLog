@@ -40,7 +40,7 @@ static YFLoggerLevel levelMask;
 
 + (void)log:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)format, ... {
     NSString *message;
-    if (format.length > 0) {
+    if (format) {
         va_list args;
         va_start(args, format);
         message = [[NSString alloc] initWithFormat:format arguments:args];
@@ -52,7 +52,7 @@ static YFLoggerLevel levelMask;
 + (void)logFunc:(const char *)func line:(const int)line level:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)format, ... {
     NSString *funcInfo = [NSString stringWithFormat:@"%d %s", line, func];
     NSString *message;
-    if (format.length > 0) {
+    if (format) {
         va_list args;
         va_start(args, format);
         message = [[NSString alloc] initWithFormat:format arguments:args];
