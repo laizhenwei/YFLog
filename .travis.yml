@@ -1,0 +1,5 @@
+language: objective-c
+
+xcode_project: YFLog.xcodeproj
+
+xcode_scheme: YFLogTests
