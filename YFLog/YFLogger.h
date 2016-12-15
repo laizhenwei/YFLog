@@ -12,10 +12,12 @@ extern NSString * const YFLoggerDefaultDomain;
 
 typedef enum : NSUInteger {
     YFLoggerLevelNone    = 0,
-    YFLoggerLevelVerbose = 1,
-    YFLoggerLevelWarning = 1 << 1,
-    YFLoggerLevelError   = 1 << 2,
-    YFLoggerLevelAll     = YFLoggerLevelVerbose | YFLoggerLevelWarning | YFLoggerLevelError,
+    YFLoggerLevelError   = 1,      // ❤️
+    YFLoggerLevelWarning = 1 << 1, // 💛
+    YFLoggerLevelDebug   = 1 << 2, // 💚
+    YFLoggerLevelInfo    = 1 << 3, // 💙
+    YFLoggerLevelVerbose = 1 << 4, // 💜
+    YFLoggerLevelAll     = NSUIntegerMax,
 } YFLoggerLevel;
 
 @interface YFLogger : NSObject
@@ -24,6 +26,7 @@ typedef enum : NSUInteger {
 + (void)setLoggerLevelMask:(YFLoggerLevel)mask;
 + (void)addLoggerDomain:(NSString *)domain;
 + (void)removeLoggerDomain:(NSString *)domain;
++ (void)log:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)format, ...;
 + (void)logFunc:(const char *)func line:(const int)line level:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)format, ...;
 
 @end

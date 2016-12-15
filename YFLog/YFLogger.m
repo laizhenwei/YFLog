@@ -38,28 +38,58 @@ static YFLoggerLevel levelMask;
     [self.domains removeObject:domain];
 }
 
++ (void)log:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)format, ... {
+    NSString *message;
+    if (format.length > 0) {
+        va_list args;
+        va_start(args, format);
+        message = [[NSString alloc] initWithFormat:format arguments:args];
+        va_end(args);
+    }
+    [self logFunc:nil level:level domain:domain message:message];
+}
+
 + (void)logFunc:(const char *)func line:(const int)line level:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)format, ... {
+    NSString *funcInfo = [NSString stringWithFormat:@"%d %s", line, func];
+    NSString *message;
+    if (format.length > 0) {
+        va_list args;
+        va_start(args, format);
+        message = [[NSString alloc] initWithFormat:format arguments:args];
+        va_end(args);
+    }
+    [self logFunc:funcInfo level:level domain:domain message:message];
+}
+
++ (void)logFunc:(NSString *)func level:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)message {
     if (domain.length <= 0 || ![self.domains containsObject:domain]) return;
     if (level & levelMask) {
-        NSString *prefix = @"💜";
+        NSString *prefix;
         switch (level) {
-            case YFLoggerLevelVerbose:
-                prefix = @"💙";
+            case YFLoggerLevelError:
+                prefix = @"❤️";
                 break;
             case YFLoggerLevelWarning:
                 prefix = @"💛";
                 break;
-            case YFLoggerLevelError:
-                prefix = @"❤️";
+            case YFLoggerLevelDebug:
+                prefix = @"💚";
                 break;
+            case YFLoggerLevelInfo:
+                prefix = @"💙";
+                break;
+            case YFLoggerLevelVerbose:
+                prefix = @"💜";
             default:
                 break;
+                
         }
-        va_list args;
-        va_start(args, format);
-        NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
-        va_end(args);
-        NSLog(@"%@ %d %s %@", prefix, line, func, message);
+        if (func) {
+            NSLog(@"%@ %@", prefix, func);
+        }
+        if (message) {
+            NSLog(@"%@ %@", func ? @"  " : prefix, message);
+        }
     }
 }
 
