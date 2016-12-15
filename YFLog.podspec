@@ -10,5 +10,5 @@ Pod::Spec.new do |s|
   s.author           = { 'laizw' => 'i@laizw.cn' }
   s.source           = { :git => 'https://github.com/laichanwai/YFLog.git', :tag => s.version }
   s.ios.deployment_target = '6.0'
-  s.source_files = 'YFLog/YFLog/*.{h,m}'
+  s.source_files = 'YFLog', 'YFLog/**/*.{h,m}'
 end
