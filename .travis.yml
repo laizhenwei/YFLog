@@ -1,3 +1,2 @@
 language: objective-c
-osx_image: xcode 7.3
-script: xctool -project YFLog.xcodeproj -scheme 'YFLogTests' -configuration Debug -sdk iphonesimulator tests
+script: xcodebuild -project YFLog.xcodeproj -scheme YFLogTests -destination 'platform=iOS Simulator,name=iPhone 6' test
