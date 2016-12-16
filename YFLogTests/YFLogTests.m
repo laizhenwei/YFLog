@@ -15,6 +15,16 @@
 
 @implementation YFLogTests
 
+- (void)setUp {
+    [super setUp];
+    [YFLogger setAllLogsEnable:YES];
+}
+
+- (void)tearDown {
+    [super tearDown];
+    [YFLogger setAllLogsEnable:NO];
+}
+
 - (void)testLogStyle {
     YFLogDebug(@"↓ YFLog 有 5 个 Level，分别对应不同的颜色");
     YFError(@"YFLogLevelError");
