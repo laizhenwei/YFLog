@@ -1,5 +1,4 @@
 language: objective-c
-
+osx_image: xcode 7.3
 xcode_project: YFLog.xcodeproj
-
 xcode_scheme: YFLogTests
