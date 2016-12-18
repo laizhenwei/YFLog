@@ -82,7 +82,7 @@ YFFlagInfo(YES, domain, @"看行号，发现少了一行，因为上一个没有
 ## Installation
 
 ```ruby
-pod "YFLog" :git => 'https://github.com/laichanwai/YFLog.git'
+pod "YFLog"
 ```
 
 ## Author
