@@ -10,95 +10,110 @@
 
 NSString * const YFLoggerDefaultDomain = @"YFLogger";
 
-static YFLoggerLevel levelMask;
+static NSMutableDictionary *_loggers;
+
+@interface YFLogger ()
+@property (nonatomic, copy) NSString *domain;
+@property (nonatomic, assign) YFLoggerLevel levelMask;
+@end
 
 @implementation YFLogger
 
 + (void)load {
-#if DEBUG
-    [self setAllLogsEnable:YES];
-#else
-    [self setAllLogsEnable:NO];
-#endif
+    _loggers = @{}.mutableCopy;
+    
+    [YFLogger addLoggerWithDomain:YFLoggerDefaultDomain];
+    [[YFLogger logger] setLoggerLevelMask:YFLoggerLevelAll];
 }
 
-+ (void)setAllLogsEnable:(BOOL)enable {
+#pragma mark - Class Method
++ (id)loggerWithDomain:(NSString *)domain {
+    return _loggers[domain];
+}
+
++ (instancetype)logger {
+    return [self loggerWithDomain:YFLoggerDefaultDomain];
+}
+
++ (void)addLoggerWithDomain:(NSString *)domain {
+    YFLogger *logger = [self loggerWithDomain:domain];
+    if (!logger) {
+        logger = [[YFLogger alloc] init];
+        logger.domain = domain;
+        [logger setAllLogsEnable:YES];
+        _loggers[domain] = logger;
+    }
+}
+
++ (void)removeLoggerWithDomain:(NSString *)domain {
+    if (_loggers[domain]) {
+        [_loggers removeObjectForKey:domain];
+    }
+}
+
++ (void)logDomain:(NSString *)domain func:(const char *)func line:(const int)line level:(YFLoggerLevel)level message:(NSString *)format, ... {
+    YFLogger *logger = [self loggerWithDomain:domain];
+    if (!logger) return;
+    if (!(level & logger.levelMask)) return;
+    
+    NSString *message;
+    if (format) {
+        va_list args;
+        va_start(args, format);
+        message = [[NSString alloc] initWithFormat:format arguments:args];
+        va_end(args);
+    }
+    [logger logLevel:level func:func line:line message:message];
+}
+
+#pragma mark - Instance Method
+- (void)setAllLogsEnable:(BOOL)enable {
     [self setLoggerLevelMask:enable ? YFLoggerLevelAll : YFLoggerLevelNone];
 }
 
-+ (void)setLoggerLevelMask:(YFLoggerLevel)mask {
-    levelMask = mask;
+- (void)setLoggerLevelMask:(YFLoggerLevel)mask {
+    self.levelMask = mask;
 }
 
-+ (void)addLoggerDomain:(NSString *)domain {
-    [self.domains addObject:domain];
-}
-
-+ (void)removeLoggerDomain:(NSString *)domain {
-    [self.domains removeObject:domain];
-}
-
-+ (void)log:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)format, ... {
-    NSString *message;
-    if (format) {
-        va_list args;
-        va_start(args, format);
-        message = [[NSString alloc] initWithFormat:format arguments:args];
-        va_end(args);
+#pragma mark - Private
+- (void)logLevel:(YFLoggerLevel)level func:(const char *)func line:(const int)line message:(NSString *)message {
+    NSString *prefix;
+    switch (level) {
+        case YFLoggerLevelError:
+            prefix = @"❤️";
+            break;
+        case YFLoggerLevelWarning:
+            prefix = @"💛";
+            break;
+        case YFLoggerLevelDebug:
+            prefix = @"💚";
+            break;
+        case YFLoggerLevelInfo:
+            prefix = @"💙";
+            break;
+        case YFLoggerLevelVerbose:
+            prefix = @"💜";
+        default:
+            break;
     }
-    [self logFunc:nil level:level domain:domain message:message];
-}
-
-+ (void)logFunc:(const char *)func line:(const int)line level:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)format, ... {
-    NSString *funcInfo = [NSString stringWithFormat:@"%d %s", line, func];
-    NSString *message;
-    if (format) {
-        va_list args;
-        va_start(args, format);
-        message = [[NSString alloc] initWithFormat:format arguments:args];
-        va_end(args);
-    }
-    [self logFunc:funcInfo level:level domain:domain message:message];
-}
-
-+ (void)logFunc:(NSString *)func level:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)message {
-    if (domain.length <= 0 || ![self.domains containsObject:domain]) return;
-    if (level & levelMask) {
-        NSString *prefix;
-        switch (level) {
-            case YFLoggerLevelError:
-                prefix = @"❤️";
-                break;
-            case YFLoggerLevelWarning:
-                prefix = @"💛";
-                break;
-            case YFLoggerLevelDebug:
-                prefix = @"💚";
-                break;
-            case YFLoggerLevelInfo:
-                prefix = @"💙";
-                break;
-            case YFLoggerLevelVerbose:
-                prefix = @"💜";
-            default:
-                break;
-                
-        }
-        if (func) {
-            NSLog(@"%@ %@", prefix, func);
-        }
-        if (message) {
-            NSLog(@"%@ %@", func ? @"  " : prefix, message);
-        }
+    
+    if (!message) message = @"";
+    if (func) {
+        fprintf(stderr, "%s %s %d %s  %s\n", [[self.formatter stringFromDate:[NSDate date]] UTF8String], prefix.UTF8String, line, func, message.UTF8String);
+    } else {
+        fprintf(stderr, "%s %s %s\n", [[self.formatter stringFromDate:[NSDate date]] UTF8String], prefix.UTF8String, message.UTF8String);
     }
 }
 
-+ (NSMutableSet *)domains {
-    static NSMutableSet *domains;
-    if (!domains) {
-        domains = [NSMutableSet setWithObject:YFLoggerDefaultDomain];
-    }
-    return domains;
+#pragma mark - Getter
+- (NSDateFormatter *)formatter {
+    static NSDateFormatter *formatter;
+    static dispatch_once_t oneToken;
+    dispatch_once(&oneToken, ^{
+        formatter = [[NSDateFormatter alloc] init];
+        formatter.dateFormat = @"HH:mm:ss.SSSS";
+    });
+    return formatter;
 }
 
 @end

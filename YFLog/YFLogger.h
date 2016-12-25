@@ -22,11 +22,23 @@ typedef enum : NSUInteger {
 
 @interface YFLogger : NSObject
 
-+ (void)setAllLogsEnable:(BOOL)enable;
-+ (void)setLoggerLevelMask:(YFLoggerLevel)mask;
-+ (void)addLoggerDomain:(NSString *)domain;
-+ (void)removeLoggerDomain:(NSString *)domain;
-+ (void)log:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)format, ...;
-+ (void)logFunc:(const char *)func line:(const int)line level:(YFLoggerLevel)level domain:(NSString *)domain message:(NSString *)format, ...;
+/**
+ 快速获取一个单例（DefaultDomain）
+
+ @return logger 单例
+ */
++ (instancetype)logger;
+
++ (id)loggerWithDomain:(NSString *)domain;
+
++ (void)addLoggerWithDomain:(NSString *)domain;
+
++ (void)removeLoggerWithDomain:(NSString *)domain;
+
++ (void)logDomain:(NSString *)domain func:(const char *)func line:(const int)line level:(YFLoggerLevel)level message:(NSString *)format, ...;
+
+- (void)setAllLogsEnable:(BOOL)enable;
+
+- (void)setLoggerLevelMask:(YFLoggerLevel)mask;
 
 @end

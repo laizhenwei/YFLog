@@ -17,9 +17,7 @@ FOUNDATION_EXPORT const unsigned char YFLogVersionString[];
 #import "YFLogger.h"
 
 #define YFLoggerExec(__flag__, __domain__, __level__, __frmt__, ...) \
-do { \
-if (__flag__) [YFLogger logFunc:__func__ line:__LINE__ level:__level__ domain:__domain__ message:__frmt__, ##__VA_ARGS__]; \
-else [YFLogger log:__level__ domain:__domain__ message:__frmt__, ##__VA_ARGS__]; } while (0);
+[YFLogger logDomain:__domain__ func:__flag__ ? __func__ : NULL line:__LINE__ level:__level__ message:__frmt__, ##__VA_ARGS__];
 
 #define YFFlagInfo(flag, __domain__, frmt, ...)    YFLoggerExec(flag, __domain__, YFLoggerLevelInfo, frmt, ##__VA_ARGS__)
 #define YFFlagError(flag, __domain__, frmt, ...)   YFLoggerExec(flag, __domain__, YFLoggerLevelError, frmt, ##__VA_ARGS__)
