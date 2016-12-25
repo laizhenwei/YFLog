@@ -10,8 +10,6 @@
 
 NSString * const YFLoggerDefaultDomain = @"YFLogger";
 
-static NSMutableDictionary *_loggers;
-
 @interface YFLogger ()
 @property (nonatomic, copy) NSString *domain;
 @property (nonatomic, assign) YFLoggerLevel levelMask;
@@ -20,15 +18,13 @@ static NSMutableDictionary *_loggers;
 @implementation YFLogger
 
 + (void)load {
-    _loggers = @{}.mutableCopy;
-    
     [YFLogger addLoggerWithDomain:YFLoggerDefaultDomain];
     [[YFLogger logger] setLoggerLevelMask:YFLoggerLevelAll];
 }
 
 #pragma mark - Class Method
 + (id)loggerWithDomain:(NSString *)domain {
-    return _loggers[domain];
+    return self.loggers[domain];
 }
 
 + (instancetype)logger {
@@ -41,13 +37,13 @@ static NSMutableDictionary *_loggers;
         logger = [[YFLogger alloc] init];
         logger.domain = domain;
         [logger setAllLogsEnable:YES];
-        _loggers[domain] = logger;
+        self.loggers[domain] = logger;
     }
 }
 
 + (void)removeLoggerWithDomain:(NSString *)domain {
-    if (_loggers[domain]) {
-        [_loggers removeObjectForKey:domain];
+    if (self.loggers[domain]) {
+        [self.loggers removeObjectForKey:domain];
     }
 }
 
@@ -106,6 +102,14 @@ static NSMutableDictionary *_loggers;
 }
 
 #pragma mark - Getter
++ (NSMutableDictionary *)loggers {
+    static NSMutableDictionary *_loggers;
+    if (!_loggers) {
+        _loggers = @{}.mutableCopy;
+    }
+    return _loggers;
+}
+
 - (NSDateFormatter *)formatter {
     static NSDateFormatter *formatter;
     static dispatch_once_t oneToken;
