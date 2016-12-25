@@ -72,7 +72,7 @@ YFLogTrace()
 
 #### 高级宏
 
-```
+```objc
 NSString *domain = @"YFTestDomain";
 [YFLogger addLoggerWithDomain:domain];
 YFFlagError(YES, domain, @"这是一个高级用法，可以控制是否打印方法，并且需要绑定一个 domain");
